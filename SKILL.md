@@ -1,11 +1,11 @@
 ---
-name: interview-briefing-sop
-description: "Three-mode analyst research SOP. Mode A (interview briefing): generate handheld question lists for sell-side analysts, company management, KOLs, or institutional shareholders based on a knowledge base. Mode B (coverage summary): synthesize a single analyst's multi-report, multi-company coverage history into a panoramic view document showing rating/PT evolution, thesis changes, beat/miss track record, and catalyst calendar. Mode C (research PPTX): build structured equity research slide decks in 7-section format matching a reference template's exact formatting (fonts, sizes, bold, table style, language). Use when the user needs interview prep, coverage synthesis, or a research PPTX — mentions '访谈提纲', '观点汇总', '全覆盖', 'SOP', '写研报', '做PPT', 'slides', or references this skill by name."
+name: charlie-analyst-toolkit
+description: "Four-mode analyst research toolkit. Mode A (interview briefing): generate handheld question lists for sell-side analysts, company management, KOLs, or institutional shareholders based on a knowledge base. Mode B (coverage summary): synthesize a single analyst's multi-report, multi-company coverage history into a panoramic view document showing rating/PT evolution, thesis changes, beat/miss track record, and catalyst calendar. Mode C (research PPTX): build structured equity research slide decks in 7-section format matching a reference template's exact formatting (fonts, sizes, bold, table style, language). Mode D (single-report deep briefing): translate and restructure a single English sell-side PDF report into a comprehensive Chinese executive summary with structured sections, data tables, and web-verified fact baseline — for decision-makers who don't read English. Use when the user needs interview prep, coverage synthesis, a research PPTX, or a single-report Chinese briefing — mentions '访谈提纲', '观点汇总', '全覆盖', 'SOP', '写研报', '做PPT', 'slides', '单篇转述', '翻译', '讲一遍', '中文总结', '领导不想读', or references this skill by name."
 ---
 
-# 分析师研究 SOP（三模式）
+# Charlie · 分析师工具包（四模式）
 
-> 启动时先确认用户要模式 A / B / C。完整参考手册见 `SOP.md`。
+> 启动时先确认用户要模式 A / B / C / D。完整参考手册见 `SOP.md`。
 
 ## 模式选择
 
@@ -14,15 +14,17 @@ description: "Three-mode analyst research SOP. Mode A (interview briefing): gene
 | **A · 访谈提纲** | 知识库目录 + 访谈对象 + 覆盖标的 | 手持问题清单 + PDF |
 | **B · 全覆盖观点汇总** | 某分析师的多标的长面板研报 | 全景文档 + PDF |
 | **C · 研报 PPTX** | 目标公司研报文件夹 + 参考 PPTX 模版 | 7 大板块结构化 PPTX |
+| **D · 单篇深度转述** | 单篇英文卖方研报 PDF | 结构化中文 Markdown + 可选 PDF |
 
 - 用户说 "准备访谈问题"、"手持问题清单" → **模式 A**
 - 用户说 "总结他的全覆盖观点"、"哪些 top pick"、"观点怎么变的" → **模式 B**
 - 用户说 "写研报"、"做一份 PPT"、"做 slides"、"公司深度" → **模式 C**
+- 用户说 "领导不想读英文"、"给老板讲一遍"、"中文总结这篇"、"翻译一下"、"单篇转述"、"帮我读这份研报" → **模式 D**
 - 同时需要访谈 + 背景 → **先 B 后 A**（读完研报→出全景文档→基于全景写提纲）
 
 ---
 
-## 通用基础设施（两种模式共享）
+## 通用基础设施（四模式共享）
 
 ### PDF 批量提取
 
@@ -286,7 +288,7 @@ done
 
 **Step 3 — 联网核实事实基线**
 
-与模式 A/B 共享：股价、市值、融资动态、催化剂状态（是否已发生）。标注查询日期。
+与模式 A/B/D 共享：股价、市值、融资动态、催化剂状态（是否已发生）。标注查询日期。
 
 **Step 4 — 编写 Markdown 逐页底稿**
 
@@ -391,6 +393,160 @@ done
 
 ---
 
+## 模式 D · 单篇深度转述
+
+> **触发场景**：用户有一篇英文卖方研报 PDF（或行业报告、临床论文），需要转成结构化中文摘要给领导/团队阅读。领导不想读英文，但需要掌握报告的全部关键信息——不是简单的翻译，而是重建信息架构、补充背景、核实事实。
+> **典型用户问题**："领导不想读英文，把这份报告给他重新讲一遍""翻译这篇报告，加点背景""中文总结一下这篇""帮我读一下这份研报，提炼要点"
+> **输入**：单篇英文研报 PDF
+> **输出**：结构化中文 Markdown 文档（放桌面）+ 可选 PDF
+
+### D.1 与模式 A/B/C 的关系
+
+模式 D 是四个模式中**最轻量**的——单篇输入、单次输出、不需要知识库目录结构。但它共享通用基础设施（PDF 提取、联网事实基线、文风规则、来源标注）。
+
+与模式 B 的关键区别：
+- B：一个分析师对多个标的的多份报告 → 全景观点演变
+- D：一篇报告 → 结构化中文深度转述
+
+### D.2 工作流程（4 步）
+
+**Step 1 — 提取 PDF 全文**
+
+```bash
+pdftotext "[报告路径]" /tmp/report.txt
+```
+
+检查行数和文件大小确保提取完整。扫描版 PDF 需 OCR。
+
+**Step 2 — 联网核实事实基线**
+
+对报告中的关键事实做硬核实：
+- 当前股价、市值（报告里的数字可能已过时）
+- 催化剂状态（"Q3 读出"——现在是 Q3 了吗？读了吗？结果是什么？）
+- 竞品动态（提到的其他公司数据是否有更新？）
+- 监管进展（PDUFA 过了吗？FDA 开会了吗？）
+
+标注查询日期。如报告数据与当前事实有出入，在转述中明确标注。
+
+**Step 3 — 识别报告类型，确定转述结构**
+
+| 报告类型 | 识别特征 | 转述重心 |
+|---------|---------|---------|
+| 卖方深度 initiation/update | 有评级/PT、财务预测、DCF | 核心 thesis、证据链、模型参数、催化剂 |
+| 卖方行业/主题报告 | 多公司对比、赛道分析 | 行业逻辑、竞争格局、标的排序 |
+| 临床数据解读 | 试验设计、HR/p 值、亚组 | 数据质量、临床意义、跨试验对比 |
+| 公司 presentation | 管线表、里程碑、财务 | 公司战略、管线优先级、催化剂日历 |
+
+**Step 4 — 输出结构化转述文档**
+
+固定板块结构（顺序可微调，但核心板块不能缺失）：
+
+```
+板块 1：报告元信息
+  - 标题、机构、作者、日期、评级/PT
+  - 报告时股价 vs 当前股价（联网核实值并列）
+
+板块 2：一句话总结
+  - 2-3 句中文概括核心 thesis——领导 10 秒理解主旨
+  - 可加一句"领导判断对照"（如果领导对同一话题有过表态）
+
+板块 3-N：按报告逻辑递进的核心内容
+  - 行业/疾病背景（为什么这个赛道重要？）
+  - 科学/技术底层（机制区分、为什么是这个靶点而非那个）
+  - 临床证据链（从早期到关键试验，数据表格化）
+  - 关键试验设计（人群、统计假设、读出时间）
+  - 竞争格局（竞品对比表、交易动态）
+  - 财务/估值（如有）
+
+板块 N+1：报告定位与局限
+  - 这是系列中的哪一篇？它覆盖了什么、没覆盖什么？
+  - 下一篇会有什么？
+
+板块 最末：关键数据卡片
+  - 一页速查表：股价、市值、评级、催化剂时间、核心假设参数
+```
+
+### D.3 转述原则
+
+**① 不是翻译，是信息重建**
+- 不逐句翻译。原文段落顺序可按中文认知逻辑重组
+- 原文 10 页 → 转述 3-5 页（去掉合规套话、disclosures、analyst certification）
+
+**② 补充"暗默知"**
+- 报告默认读者已知的背景（如"IL-6 cis vs trans"），用 1-2 句解释
+- 报告引用的历史试验（如 CANTOS），简要回顾，让领导不用跳出去查
+
+**③ 表格化对比**
+- 分散在不同段落的对比数据 → 整理成中文化对比表
+- 一张好表胜过三段文字
+
+**④ 标注报告局限**
+- 这份报告没说什么？（下一篇才有的内容？）
+- 报告假设是否偏乐观/悲观？
+
+**⑤ 文风规则（与模式 B/C 共享）**
+```
+☐ 直接、朴实、具体——只陈述事实和数字
+☐ 不比喻、不排比、不夸张
+☐ 原文关键判断保留英文引语 + 中文语境
+☐ 每个数据点标注来源
+☐ 英文术语保留原文（如 hsCRP、MACE-3、treatment paradigm）
+☐ 首次出现时给简注（如"hsCRP（高敏 C 反应蛋白）"）
+```
+
+### D.4 输出格式模板
+
+```markdown
+# [公司/主题] · [核心内容标签] —— 单篇研报深度转述
+
+> **原报告**：[机构]，"[报告标题]"，[日期]
+> **作者**：[分析师名]（[角色]）+ 团队
+> **评级**：[评级]，[目标价]
+> **报告时股价**：[价格] | **当前股价**：[价格]（[查询日期]，来源：[数据源]）
+
+---
+
+## 一、这份报告在说什么（一句话版）
+
+**[用 2-3 句中文概括核心 thesis]**
+
+---
+
+## 二、[第一个分析板块]
+...
+```
+
+### D.5 核对清单
+
+```
+□ PDF 全文提取完整
+□ 报告元信息完整（标题/机构/作者/日期/评级/PT）
+□ 股价/市值联网核实（标查询日期和来源）
+□ 催化剂状态已确认（已发生的标结果，未发生的标预期时间）
+□ 转述结构匹配报告类型，板块逻辑自洽
+□ 关键数据已表格化（≥2 张数据表）
+□ 每个数据点标注来源
+□ 文风直接朴实，无比喻排比夸张
+□ 英文术语保留原文，首次出现有简注
+□ 关键数据卡片完整
+□ 输出文件命名为 [Ticker]_[主题]_研报转述.md
+```
+
+### D.6 典型错误速查（模式 D 专属）
+
+| 错误 | 正确做法 |
+|------|---------|
+| 逐句翻译，保留原文段落顺序 | 按中文认知逻辑重组信息架构 |
+| 默认读者懂所有背景 | 关键背景用 1-2 句简要解释 |
+| 股价用报告里的旧数字 | 必须联网查当前值，与报告时股价并列 |
+| "3Q26 读出"照抄 | 现在是 Q3 了吗？读了吗？必须联网确认 |
+| 合规套话也翻译 | 直接省略，标注"合规内容已省略" |
+| 只有文字没有表格 | 对比数据、时间线、参数表——优先用表格 |
+| 英文术语硬翻成中文 | 保留原文，首次出现给简注 |
+| 漏掉"报告没说什么" | 标注报告定位（系列第几篇、下篇会有什么） |
+
+---
+
 ## PDF 配色参数
 
 ```css
@@ -414,6 +570,8 @@ table { font-size: 7pt; width: 100%; border-collapse: collapse; }
 | 观点张冠李戴 | 纪要中所有引用先确认发言人身份 |
 | 市值凭记忆写 | 必须联网查当前值，标查询日期 |
 | 只读一份报告 | 读完所有报告再下结论 |
+| 模式 D：逐句翻译 | 信息重建，按中文逻辑重组 |
+| 模式 D：漏掉背景解释 | 补充"暗默知"，让不读英文的人也能跟上 |
 
 ---
 
