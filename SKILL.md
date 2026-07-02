@@ -1,11 +1,11 @@
 ---
 name: charlie-analyst-toolkit
-description: "Four-mode analyst research toolkit. Mode A (interview briefing): generate handheld question lists for sell-side analysts, company management, KOLs, or institutional shareholders based on a knowledge base. Mode B (coverage summary): synthesize a single analyst's multi-report, multi-company coverage history into a panoramic view document showing rating/PT evolution, thesis changes, beat/miss track record, and catalyst calendar. Mode C (research PPTX): build structured equity research slide decks in 7-section format matching a reference template's exact formatting (fonts, sizes, bold, table style, language). Mode D (single-report deep briefing): translate and restructure a single English sell-side PDF report into a comprehensive Chinese executive summary with structured sections, data tables, and web-verified fact baseline — for decision-makers who don't read English. Use when the user needs interview prep, coverage synthesis, a research PPTX, or a single-report Chinese briefing — mentions '访谈提纲', '观点汇总', '全覆盖', 'SOP', '写研报', '做PPT', 'slides', '单篇转述', '翻译', '讲一遍', '中文总结', '领导不想读', or references this skill by name."
+description: "Five-mode analyst research toolkit. Mode A (interview briefing): generate handheld question lists. Mode B (coverage summary): synthesize a single analyst's multi-report coverage history. Mode C (research PPTX): build structured equity research slide decks. Mode D (single-report deep briefing): translate English sell-side PDFs into Chinese executive summaries. Mode E (meeting minutes): transform raw interview transcripts into clean Chinese meeting minutes in Word format. Use when the user needs interview prep, coverage synthesis, a research PPTX, a single-report Chinese briefing, or meeting minutes — mentions '访谈提纲', '观点汇总', '全覆盖', 'SOP', '写研报', '做PPT', 'slides', '单篇转述', '翻译', '中文总结', '领导不想读', '会议纪要', '人工纪要', '逐字稿', or references this skill by name."
 ---
 
-# Charlie · 分析师工具包（四模式）
+# Charlie · 分析师工具包（五模式）
 
-> 启动时先确认用户要模式 A / B / C / D。完整参考手册见 `SOP.md`。
+> 启动时先确认用户要模式 A / B / C / D / E。完整参考手册见 `SOP.md`。
 
 ## 模式选择
 
@@ -15,11 +15,13 @@ description: "Four-mode analyst research toolkit. Mode A (interview briefing): g
 | **B · 全覆盖观点汇总** | 某分析师的多标的长面板研报 | 全景文档 + PDF |
 | **C · 研报 PPTX** | 目标公司研报文件夹 + 参考 PPTX 模版 | 7 大板块结构化 PPTX |
 | **D · 单篇深度转述** | 单篇英文卖方研报 PDF | 结构化中文 Markdown + 可选 PDF |
+| **E · 会议纪要** | 逐字稿 docx + 参考纪要 docx + 可选 AI 纪要 | 中文逐字稿 md + Word 人工纪要 + AI 对照分析 |
 
 - 用户说 "准备访谈问题"、"手持问题清单" → **模式 A**
 - 用户说 "总结他的全覆盖观点"、"哪些 top pick"、"观点怎么变的" → **模式 B**
 - 用户说 "写研报"、"做一份 PPT"、"做 slides"、"公司深度" → **模式 C**
 - 用户说 "领导不想读英文"、"给老板讲一遍"、"中文总结这篇"、"翻译一下"、"单篇转述"、"帮我读这份研报" → **模式 D**
+- 用户说 "做纪要"、"整理纪要"、"人工纪要"、"会议记录"、"把逐字稿整理成纪要"、"弄一份纪要" → **模式 E**
 - 同时需要访谈 + 背景 → **先 B 后 A**（读完研报→出全景文档→基于全景写提纲）
 
 ---
@@ -544,6 +546,212 @@ pdftotext "[报告路径]" /tmp/report.txt
 | 只有文字没有表格 | 对比数据、时间线、参数表——优先用表格 |
 | 英文术语硬翻成中文 | 保留原文，首次出现给简注 |
 | 漏掉"报告没说什么" | 标注报告定位（系列第几篇、下篇会有什么） |
+
+---
+
+## 模式 E · 会议纪要
+
+> **触发场景**：用户有一段访谈或会议的语音转文字逐字稿（通常为 docx 格式，含大量口语填充词和识别误差），需要整理成结构化的中文会议纪要。同时提供参考纪要（同团队此前做过的纪要 docx）来校准格式。
+> **典型用户问题**："帮我弄一份人工纪要""把逐字稿整理成纪要""做一份 Word 纪要，字体楷体""把这个访谈整理一下"
+> **输入**：逐字稿 docx（语音转文字，通常为英文）+ 参考纪要 docx（1-4 份，用于格式校准）+ 可选 AI 纪要 docx（用于对照查漏）
+> **输出**：中文逐字稿 Markdown + Word 人工纪要（楷体 12pt）+ AI 纪要对标分析
+
+### E.1 与模式 A/B/C/D 的关系
+
+模式 E 处理的是**访谈后**的工作——原始录音已经转为文字，需要整理成可阅读的纪要。与模式 A（访谈前准备）互补：A 在访谈前出问题清单，E 在访谈后出纪要。
+
+与模式 D 的关键区别：
+- D：英文研报 PDF → 中文结构化转述（书面语、信息重建）
+- E：英文逐字稿 → Word 纪要（口语、Q&A 格式、第一人称）
+
+### E.2 工作流程（5 步）
+
+**Step 0 — 格式校准（必做，不可跳过）**
+
+必须先完整阅读用户提供的所有参考纪要 docx，提取以下格式参数，不可凭记忆猜测：
+
+```
+□ 标题格式（日期+对象+会议纪要？加粗？居中？）
+□ 正文字体（通常楷体）和字号（通常 12pt = 152400 EMU）
+□ Key Takeaway 的结构（主题小标题加粗 + 项目符号要点）
+□ Q&A 格式（Q 加粗、A 不加粗；Q 和 A 之间是否换行）
+□ 回答是第一人称还是第三人称转述
+□ 全文是否使用箭头（→）和破折号（——）
+□ Key Takeaway 的子弹密度（一句话一事实 vs 长篇论述）
+```
+
+以用户实际提供的参考纪要为准。不同团队/时期的纪要格式可能不一致，取最近的一份做主要参照。
+
+**Step 1 — 精读逐字稿，识别问答边界**
+
+逐字稿通常是语音转文字的产物，具有以下特征：
+- 一个或少数几个巨大段落，讲话人标签（"讲话人1：""讲话人2："）混在文本中
+- 大量口语填充词（um、you know、like、就是说、然后）
+- 语音识别误差（专有名词、药名、ticker 被转成近音词）
+- 提问方的一大段话里可能包含闲聊、铺垫、多个子问题
+
+处理方式：
+- 先识别所有讲话人（通常 2-4 人）
+- 按对话时间顺序标记每个提问和回答的起点
+- 提问方的长段自述（"我们为什么要关注你""我以前的经历"）不纳入最终纪要，除非是对方反问
+
+**Step 2 — 输出中文逐字稿 Markdown（如逐字稿为英文）**
+
+将英文语音转文字转述为中文 Q&A 格式。这不是翻译，而是按对话逻辑做语言转换：
+- 去掉口语填充词（um、you know、like、I mean、sort of）
+- 修正明显的语音识别误差
+- 保留关键数据和定性判断
+- 英文关键术语保留原文并附中文简注（如"functional unblinding（功能性揭盲）"）
+- 标注讲话人身份（提问方/回答方）
+
+**Step 3 — 编写 Word 人工纪要**
+
+按参考纪要的格式，生成 docx 文件。固定结构：
+
+```
+[日期] [对象] 会议纪要          ← 标题，加粗，居中
+
+Key Takeaway：                  ← 加粗
+
+【主题小标题】                   ← 加粗
+  要点 1（项目符号）
+  要点 2
+
+【主题小标题】
+  要点 1
+
+（空行分隔）
+
+Q：[问题]                       ← 加粗
+A：[回答]                       ← 不加粗
+```
+
+**Step 4 — 与 AI 纪要对照（如用户提供了 AI 纪要）**
+
+逐题对比人工纪要 vs AI 纪要：
+- AI 纪要遗漏了哪些问题
+- AI 纪要哪些地方做了过度确定化处理（把回答者的"不知道/还没定"写成了确定性陈述）
+- AI 纪要丢失了哪些关键定性标签和原话引语
+- 输出对照分析 Markdown
+
+### E.3 格式铁律（不可违反）
+
+#### 字体与字号
+
+| 元素 | 字体 | 字号 | 加粗 |
+|------|------|------|------|
+| 标题 | 楷体 | 12pt | ✅ |
+| Key Takeaway | 楷体 | 12pt | ✅ |
+| 主题小标题 | 楷体 | 12pt | ✅ |
+| 要点正文 | 楷体 | 12pt | ❌ |
+| Q 行 | 楷体 | 12pt | ✅ |
+| A 行 | 楷体 | 12pt | ❌ |
+
+#### 零箭头零破折号
+
+```
+☐ 全文不使用 →（箭头）
+☐ 全文不使用 ——（破折号）
+```
+
+句子之间用句号和逗号连接。语序直来直去：主语、谓语、宾语。
+
+#### 回答铁律
+
+```
+☐ 第一人称（"我觉得""我们测算""说实话"），不做第三人称转述（"Pete 认为"❌）
+☐ 别人说什么就是什么，不加原文没有的解释和连接词
+☐ 去掉重复、口头禅、冗余铺垫，但不改变原意
+☐ 不加"Pete 核心警告""Pete 坦诚承认"之类的第三人称夹注
+☐ 如果回答者明确说"不知道""还没定""别信"，必须原样保留，不能润色成确定性表述
+☐ 回答中不要嵌套"Q：... A：..."的子结构
+```
+
+#### 提问提炼
+
+```
+☐ 提问方的自述、铺垫、兜圈子全部砍掉，只留核心问题
+☐ 一个长追问中如果包含多个子问题，可以保留在同一个 Q 里（如"XX 的路径是怎样的？需要先做 Ph2 还是直接 Ph3？启动时间呢？"）
+☐ 但如果子问题指向不同方向，拆成独立 Q（参考 E.2 Step 1 的判断）
+☐ Q 本身不使用破折号和箭头
+```
+
+#### Key Takeaway 铁律
+
+```
+☐ 主题小标题极简（"医药工业""临床与监管""市场空间"），不加修饰
+☐ 每条要点一句话讲完一个事实，带具体数字，不展开论证
+☐ 不使用箭头（→）和破折号（——）
+☐ 不做因果推演标记（"由于 A 导致 B，因此 C" ❌）
+☐ 把事实罗列出来即可，让读者自己判断因果
+```
+
+参考风格（取自用户提供的上海医药纪要）：
+```
+医药工业
+  25Q1工业下滑因硫酸羟氯喹（约12亿）进入集采后跌至约5亿，该影响现已消除，26年第十二批集采中无大品种涉及。
+  2026年一季度工业增速约16%，含并表上海和黄后获得近30亿大品种麝香保心丸的增量贡献，刨除并表因素也能实现恢复性增长。
+```
+
+不是这样（我犯过的错误）：
+```
+❌ COMPASS Ph3 成功三因素：①管理层严格把控→执行质量高；②仅设两组→无中间剂量干扰；③OLE 设计→脱落率低、反馈更真实
+❌ TAM 巨大：GAD 1.5% 渗透率 → $1B+；MDD 0.5% → $1B+；叠加 PTSD —— 总 TAM 超 $50B
+```
+
+### E.4 输出物清单
+
+```
+□ 中文逐字稿 Markdown（按时间顺序的完整 Q&A 转述，每条标注讲话人身份）
+□ Word 人工纪要 docx（楷体 12pt，标题 + Key Takeaway + Q&A，零箭头零破折号）
+□ AI 纪要对标分析 Markdown（如用户提供了 AI 纪要）
+□ 所有文件放在桌面同一个文件夹内，命名：YYYYMMDD_[对象]_会议纪要/
+```
+
+### E.5 生成 Word 的技术要求
+
+- 使用 `python-pptx` 的兄弟库 `python-docx`
+- 字体必须显式设置，包括东亚字体回退（`w:eastAsia`）
+- 生成前先做 Python 语法检查（`compile()`）
+- 生成后验证：箭头计数 = 0，破折号计数 = 0
+- 生成脚本在验证通过后删除，不留垃圾文件
+
+```python
+# 字体设置参考（楷体 12pt）
+from docx.shared import Pt
+from docx.oxml.ns import qn
+from docx.oxml import OxmlElement
+
+FONT = '楷体'
+SIZE = Pt(12)
+
+def set_run_font(run, bold=False):
+    run.bold = bold
+    run.font.size = SIZE
+    run.font.name = FONT
+    rPr = run._r.get_or_add_rPr()
+    rFonts = rPr.find(qn('w:rFonts'))
+    if rFonts is None:
+        rFonts = OxmlElement('w:rFonts')
+        rPr.insert(0, rFonts)
+    for attr in ('eastAsia', 'ascii', 'hAnsi'):
+        rFonts.set(qn(f'w:{attr}'), FONT)
+```
+
+### E.6 常见错误速查（模式 E 专属）
+
+| 错误 | 正确做法 |
+|------|---------|
+| 不读参考纪要直接开工 | 必须先完整读参考纪要，提取格式参数，跟用户确认后再写 |
+| 回答用第三人称（"Pete 认为"） | 全部第一人称（"我觉得""我们测算"） |
+| 回答中加第三人称夹注（"Pete 核心警告"） | 直接让回答者说出来（"如果哪家公司告诉你已经定了——别信"） |
+| 全文用箭头（→）和破折号（——） | 零箭头、零破折号。句号逗号连接 |
+| Key Takeaway 写成微型论证 | 一句话一个事实，带数字，不用因果标记 |
+| 回答加原文没有的解释 | 别人说什么就是什么，去掉重复即可 |
+| 回答者说"不知道"被润色成确定性表述 | "不知道"就是"不知道"，原样保留 |
+| Q 里保留提问方的大段铺垫 | 砍掉铺垫，留核心问题。子问题多可以合在一个 Q 里 |
+| Word 字体靠默认/继承 | 必须显式设置楷体 + 东亚字体回退 |
+| 生成后不验证 | 必须跑箭头计数和破折号计数 |
 
 ---
 
