@@ -1,6 +1,6 @@
 ---
 name: charlie-analyst-toolkit
-description: "Five-mode analyst research toolkit. Mode A (interview briefing): generate handheld question lists. Mode B (coverage summary): synthesize a single analyst's multi-report coverage history. Mode C (research PPTX): build structured equity research slide decks. Mode D (single-report deep briefing): translate English sell-side PDFs into Chinese executive summaries. Mode E (meeting minutes): transform raw interview transcripts into clean Chinese meeting minutes in Word format. Use when the user needs interview prep, coverage synthesis, a research PPTX, a single-report Chinese briefing, or meeting minutes — mentions '访谈提纲', '观点汇总', '全覆盖', 'SOP', '写研报', '做PPT', 'slides', '单篇转述', '翻译', '中文总结', '领导不想读', '会议纪要', '人工纪要', '逐字稿', or references this skill by name."
+description: "Five-mode analyst research toolkit with academic literature search. Mode A (interview briefing): generate handheld question lists. Mode B (coverage summary): synthesize a single analyst's multi-report coverage history. Mode C (research PPTX): build structured equity research slide decks. Mode D (single-report deep briefing): translate English sell-side PDFs into Chinese executive summaries. Mode E (meeting minutes): transform raw interview transcripts into clean Chinese meeting minutes in Word format. All modes optionally leverage paper-search-pro (OpenAlex/PubMed/Semantic Scholar) for precision academic literature retrieval. Use when the user needs interview prep, coverage synthesis, a research PPTX, a single-report Chinese briefing, or meeting minutes — mentions '访谈提纲', '观点汇总', '全覆盖', 'SOP', '写研报', '做PPT', 'slides', '单篇转述', '翻译', '中文总结', '领导不想读', '会议纪要', '人工纪要', '逐字稿', '查论文', '找文献', or references this skill by name."
 ---
 
 # Charlie · 分析师工具包（五模式）
@@ -26,7 +26,7 @@ description: "Five-mode analyst research toolkit. Mode A (interview briefing): g
 
 ---
 
-## 通用基础设施（四模式共享）
+## 通用基础设施（五模式共享）
 
 ### PDF 批量提取
 
@@ -46,6 +46,48 @@ done
 - 监管进展（FDA 会议、clinical hold 状态）
 - 关键催化剂是否已发生（"Q3 读出"→现在 Q3 了？读了吗？）
 
+### 学术文献精确检索（按需启用）
+
+当任务涉及靶点机制、临床试验数据、生物标志物验证、或需要核实/补充科学证据时，启用 paper-search-pro 五源学术检索（OpenAlex / PubMed / Semantic Scholar / arXiv / CrossRef）。
+
+**仓库位置**：`/Users/charliewei/paper-search-pro`（`$PSP_HOME`）。首次使用前确认 `scripts/config.py` 中 API keys 已配（全部免费，约 15 分钟，详见 `references/setup.md`）。
+
+**两档深度**（适配分析师场景，砍掉原版 Audit 档）：
+
+| 档位 | 时间 | 论文量 | 适用 |
+|------|------|--------|------|
+| **速扫**（Quick） | 5-8 min | 20-60 | 模式 A 访谈前背景、模式 D 交叉验证 |
+| **深度**（Standard） | 10-17 min | 60-180 | 模式 C 研报学术引用、需要完整文献地图 |
+
+**信源路由默认值**（生物医药场景）：
+- OpenAlex：✅ 始终开（主检索）
+- PubMed：✅ 始终开（MeSH 富集，医药赛道核心）
+- Semantic Scholar：✅ 始终开（引用指标 + 摘要回退）
+- arXiv：❌ 默认关，仅当查询含"preprint""最新""刚发表"等新鲜度信号时开启
+- CrossRef：❌ 默认关，仅深度档且需要资助方/临床试验注册号信息时开启
+
+**精简流程**（从原版 14 步砍到 6 步，砍掉 HTML 报告、PRISMA-S 日志、引文追踪、饱和曲线）：
+
+```
+Step 1 — 查询规划：PICO（临床/医药）或概念块（开放话题），2-5 个同义词/概念
+Step 2 — OpenAlex 检索：速扫用 search --limit 50；深度用 double-sort --n 100
+Step 3 — PubMed 富集：enrich 模式，MeSH 词条注入 KG
+Step 4 — 去重合并：federated_kg_resolver，产出统一 KG（dict by canonical_key）
+Step 5 — 相关性分级：速扫手动扫 top-30 标 RCS；深度启动 SubAgent 批量分级（参考 rcs_rubric.md）
+Step 6 — 输出 Markdown：按 Charlie 格式输出（见各模式的具体格式要求）
+```
+
+**输出原则**：
+- 不生成 HTML report，只出 Markdown（可直接粘贴进提纲/底稿/转述文档）
+- RCS ≥ 7 的论文必须标注"为什么重要"的一句话解读
+- 每篇论文标注来源数据库 + 检索日期
+- 英文术语保留原文，首次出现给简注
+
+**常见跳过场景**（明确说出来，按 Rule C）：
+- 话题是纯财务/估值/交易结构 → 跳过
+- 仿制药/生物类似药，不涉及新机制 → 跳过
+- 用户给的资料里已经有完整的学术引用且无需核实 → 跳过
+
 ---
 
 ## 模式 A · 访谈提纲
@@ -58,6 +100,26 @@ done
 | 公司管理层 | 该公司 transcript/presentation/股东信 | 其他公司/分析师/竞争者的评论 | 模版、NCT、行业报告 |
 
 **规则**：L2 的话不能安到 L1 对象头上。使用前确认发言人身份。
+
+### A.1.5 学术背景速扫（条件触发）
+
+**触发条件**：标的涉及具体靶点/作用机制/关键临床试验 → 启用学术文献速扫。纯财务/战略/仿制药话题 → 跳过并说明。
+
+**目标**：5-8 分钟 Quick tier，找到 3-5 篇最关键论文，不追求覆盖全面。
+
+**检索内容**：
+- 标的 lead asset 的靶点/机制的关键论文（pivotal trial、机制验证、biomarker 研究）
+- 该疾病领域近 3 年的重要综述或 meta-analysis
+- 竞品靶点的关键差异论文（如果八维度覆盖涉及竞争护城河）
+
+**用途**：
+- 验证对方研报里的科学论述是否有论文支撑
+- 找到对方可能回避的关键证据 → 直接变成 **Pocket Question** 或 **Secondary P2**
+- 在问题的"背景与预期"中引用论文，而非只写"据其研报称"——"据 NEJM 2024 年 Ph3 结果显示…你的模型里这项假设是否过于保守？"比"你的 PT 假设基于什么？"有力得多
+
+**输出**：检索到的关键论文融入 A.3 提纲的各问题"背景与预期"段落，标注为 `【来源：PubMed/OpenAlex，检索日期】`，与研报来源明确区分。
+
+**跳过决策**：如跳过，按 Rule C 说明原因和损失（"未检索学术文献，提纲的科学验证力度较弱"）。
 
 ### A.2 逐份报告阅读
 
@@ -150,6 +212,7 @@ pandoc input.md -f markdown-tex_math_dollars -t html5 --standalone \
 □ L2 发言人分类正确，无混入 L1
 □ PT/DCF 时间线已追踪，提纲用最新值
 □ 市值/股价联网核实（标日期）
+□ A.1.5 学术速扫决策已确认（触发/跳过 + 原因）
 □ 八维度全覆盖
 □ 每数据点标来源
 □ PDF 中文无乱码、$ 正常、表格完整
@@ -250,6 +313,14 @@ BBIO PT 演变：
 □ PDF 中文无乱码、$ 正常、表格完整
 ```
 
+### B.6 学术文献增强（按需，极少触发）
+
+仅在以下场景考虑启用 Quick tier 检索：
+- 某标的的核心 thesis 依赖一个学术上有争议的问题（如"这个生物标志物到底能不能预测临床结局""该靶点的表达水平与疗效是否存在线性关系"）
+- 分析师报告中明确引用了某篇学术论文且你想核实
+
+如触发，检索结果以 3-5 行要点形式附在"逐家详解"该标的的分析末尾。绝大多数标的 → 跳过并说明。
+
 ---
 
 ## 模式 C · 研报 PPTX
@@ -291,6 +362,37 @@ done
 **Step 3 — 联网核实事实基线**
 
 与模式 A/B/D 共享：股价、市值、融资动态、催化剂状态（是否已发生）。标注查询日期。
+
+**Step 3.5 — 学术文献检索（条件触发，板块 1 & 4 写入前）**
+
+**触发条件**：标的涉及创新药/新靶点/新机制/新生物标志物 → 启用 Standard tier 学术检索。仿制药/生物类似药/纯财务分析 → 跳过并说明。
+
+**目标**：10-17 分钟，为板块 1（行业/疾病背景/科学底层）和板块 4（竞争分析/跨技术路径对比）提供精确学术引用。
+
+**检索内容**：
+- 疾病领域最近 3-5 年的关键综述、pivotal trials、meta-analysis
+- 该靶点/通路的机制验证论文（为什么是这个靶点而不是那个）
+- 竞品靶点/技术路径的关键对比研究
+- 流行病学/市场规模的关键引用（发病率、患病率、未满足需求的数据来源）
+
+**用途**：
+- 板块 1「科学/技术底层」页面：引用关键机制论文，标注 PMID/DOI
+- 板块 1「市场规模」页面：引用流行病学研究作为患病率/发病率的原始出处
+- 板块 4「竞品横向对比」：引用各竞品的 pivotal trial 论文，提炼关键数字进对比表
+- 每页底部的资料来源标注从纯"某某研报"升级为"某某研报 + NEJM 2024; PMID:xxxxx"
+
+**输出格式**：检索到的文献以表格形式附在 Markdown 底稿末尾（不进入 PPTX 正文），逐页标注哪些文献对应哪些 slide。
+
+```markdown
+## 学术文献引用清单（检索日期：YYYY-MM-DD）
+
+| Slide | 文献 | 来源 | RCS | 引用用途 |
+|-------|------|------|-----|---------|
+| 3 | Smith et al. (2024), NEJM | PubMed | 9 | 疾病机制背景 |
+| 5 | Meta-analysis (2025), Lancet | OpenAlex | 8 | 患病率数据出处 |
+```
+
+**跳过决策**：如跳过，按 Rule C 说明——"板块 1 和 4 的资料来源仅标注卖方研报，缺少原始学术引用，科学可信度打折扣"。
 
 **Step 4 — 编写 Markdown 逐页底稿**
 
@@ -430,6 +532,34 @@ pdftotext "[报告路径]" /tmp/report.txt
 
 标注查询日期。如报告数据与当前事实有出入，在转述中明确标注。
 
+**Step 2.5 — 学术交叉验证（条件触发）**
+
+**触发条件**：卖方报告明确引用了某篇学术论文作为核心论据（如"per the pivotal Ph3 published in NEJM…""a recent Lancet study showed…"）→ 启用学术文献检索。报告未引用具体论文、或引用的仅是公司 press release/会议摘要 → 可跳过。
+
+**目标**：Quick tier，5-8 分钟。对每篇被引用的关键论文做三件事：
+
+**① 拉原文，核引述**
+- 用 OpenAlex/PubMed 按标题或 DOI 查到论文原文（摘要 + 关键数据）
+- 对照卖方报告对该论文的引述——报告是否准确传达了结论？是否选择性引用（只提有利的亚组）？
+- 如有出入 → 写进"报告定位与局限"板块
+
+**② 找后续证据**
+- 搜该论文的后续引用（被引 ≥20 次的后续研究）
+- 有没有 meta-analysis 得出不同结论？
+- 有没有更大规模的后续试验推翻了原结论？
+- 有没有 real-world evidence 不支持 RCT 结论？
+
+**③ 找对立证据**
+- 同靶点有没有竞品试验结果更好/更差？
+- 有没有方法学批评（如"样本量不足""生物标志物未经验证"）？
+
+**用途**：
+- 直接喂给 D.2 Step 3 的"报告定位与局限"板块——这是目前模式 D 输出最有区分度的附加值
+- 示例输出："报告引用了 Smith et al. (2024) Ph3 作为疗效核心证据，但未提及：① Johnson et al. (2025) meta-analysis 显示该效应量在更大样本中减半；② 竞品 encaleret 的 Ph3 在同一终点上数值更优。"
+- 如果核实无误——在转述中标注"（经 PubMed 交叉验证，引述准确）"，增加可信度
+
+**跳过决策**：如跳过，按 Rule C 说明——"报告中引用的学术论文未经独立核实，转述内容假定卖方引述准确"。
+
 **Step 3 — 识别报告类型，确定转述结构**
 
 | 报告类型 | 识别特征 | 转述重心 |
@@ -525,6 +655,7 @@ pdftotext "[报告路径]" /tmp/report.txt
 □ 报告元信息完整（标题/机构/作者/日期/评级/PT）
 □ 股价/市值联网核实（标查询日期和来源）
 □ 催化剂状态已确认（已发生的标结果，未发生的标预期时间）
+□ Step 2.5 学术交叉验证已决策（触发/跳过 + 原因；如触发，已核实关键引用论文 + 搜对立证据）
 □ 转述结构匹配报告类型，板块逻辑自洽
 □ 关键数据已表格化（≥2 张数据表）
 □ 每个数据点标注来源
@@ -782,6 +913,14 @@ def set_run_font(run, bold=False):
 | Q 里保留提问方的大段铺垫 | 砍掉铺垫，留核心问题 |
 | Word 字体靠默认/继承 | 必须显式设置楷体 + 东亚字体回退 |
 | 生成后不验证 | 必须跑箭头计数和破折号计数 |
+
+### E.7 学术文献背景补充（按需，极少触发）
+
+**触发场景**：访谈中对方明确提到某篇学术论文（"the recent paper by Dr. X published in Y showed…"）、或讨论到某个关键试验设计细节需要原始论文佐证。
+
+**操作**：Quick tier，定向检索该论文 → 拉出摘要和关键数据 → 以脚注形式附在相关 Q&A 末尾，标注"【会后补充：论文出处 + 一句结论】"。不展开分析，仅做背景参考。
+
+绝大多数纪要 → 跳过并说明。
 
 ---
 

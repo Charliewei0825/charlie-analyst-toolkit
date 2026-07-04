@@ -1,9 +1,9 @@
 ---
 name: charlie-analyst-toolkit
-description: "Four-mode analyst research toolkit. Mode A (interview briefing): generate handheld question lists. Mode B (coverage summary): synthesize analyst coverage history into panoramic view. Mode C (research PPTX): build structured equity research slide decks in 7-section format matching a reference template's exact formatting. Mode D (single-report deep briefing): translate and restructure a single English sell-side PDF report into a comprehensive Chinese executive summary."
+description: "Five-mode analyst research toolkit with academic literature search. Mode A (interview briefing): generate handheld question lists. Mode B (coverage summary): synthesize analyst coverage history into panoramic view. Mode C (research PPTX): build structured equity research slide decks in 7-section format matching a reference template's exact formatting. Mode D (single-report deep briefing): translate and restructure a single English sell-side PDF report into a comprehensive Chinese executive summary. Mode E (meeting minutes): transform raw interview transcripts into clean Chinese meeting minutes. All modes optionally leverage paper-search-pro (OpenAlex/PubMed/Semantic Scholar) for precision academic literature retrieval."
 ---
 
-# Charlie · 分析师工具包 SOP（四模式）
+# Charlie · 分析师工具包 SOP（五模式）
 
 > **本 skill 提供四种输出，启动时先确认用户要哪一种。**
 
@@ -59,6 +59,10 @@ done
 - 关键声明标注 chunk ID（如 `[C003][C011]`）
 - 事实与推断分离
 - 数字声明必须与提取文本对齐
+
+### 学术文献精确检索（按需启用）
+
+当任务涉及靶点机制、临床试验数据或需要核实/补充科学证据时，启用 paper-search-pro 五源学术检索。仓库位于 `/Users/charliewei/paper-search-pro`。详细参数、触发条件和输出格式见 `SKILL.md` §「通用基础设施 · 学术文献精确检索」及各模式对应章节（A.1.5 / C Step 3.5 / D Step 2.5 / B.6 / E.7）。paper-search-pro 自身的完整文档在 `$PSP_HOME/SKILL.md` 和 `$PSP_HOME/references/` 下。
 
 ---
 
