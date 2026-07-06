@@ -1,6 +1,6 @@
 ---
 name: charlie-analyst-toolkit
-description: "Five-mode analyst research toolkit with academic literature search. Mode A (interview briefing): generate handheld question lists. Mode B (coverage summary): synthesize a single analyst's multi-report coverage history. Mode C (research PPTX): build structured equity research slide decks. Mode D (single-report deep briefing): translate English sell-side PDFs into Chinese executive summaries. Mode E (meeting minutes): transform raw interview transcripts into clean Chinese meeting minutes in Word format. All modes optionally leverage paper-search-pro (OpenAlex/PubMed/Semantic Scholar) for precision academic literature retrieval. Use when the user needs interview prep, coverage synthesis, a research PPTX, a single-report Chinese briefing, or meeting minutes — mentions '访谈提纲', '观点汇总', '全覆盖', 'SOP', '写研报', '做PPT', 'slides', '单篇转述', '翻译', '中文总结', '领导不想读', '会议纪要', '人工纪要', '逐字稿', '查论文', '找文献', or references this skill by name."
+description: "Six-mode analyst research toolkit with academic literature search. Mode A (interview briefing): generate handheld question lists. Mode B (coverage summary): synthesize a single analyst's multi-report coverage history. Mode C (research PPTX): build structured equity research slide decks. Mode D (single-report deep briefing): translate English sell-side PDFs into Chinese executive summaries. Mode E (meeting minutes): transform raw interview transcripts into clean Chinese meeting minutes in Word format. Mode F (Charlie Encyclopedia): generate easy-to-read HTML learning reports for pharma/biotech interns covering companies, sectors, terminology, valuation, and financial statements. All modes optionally leverage paper-search-pro (OpenAlex/PubMed/Semantic Scholar) for precision academic literature retrieval. Use when the user needs interview prep, coverage synthesis, a research PPTX, a single-report Chinese briefing, meeting minutes, learning materials, or terminology explanations — mentions '访谈提纲', '观点汇总', '全覆盖', 'SOP', '写研报', '做PPT', 'slides', '单篇转述', '翻译', '中文总结', '领导不想读', '会议纪要', '人工纪要', '逐字稿', '查论文', '猹狸百科', '帮我了解', '小白', '估值怎么看', or references this skill by name."
 ---
 
 # Charlie · 分析师工具包（五模式）
@@ -16,12 +16,14 @@ description: "Five-mode analyst research toolkit with academic literature search
 | **C · 研报 PPTX** | 目标公司研报文件夹 + 参考 PPTX 模版 | 7 大板块结构化 PPTX |
 | **D · 单篇深度转述** | 单篇英文卖方研报 PDF | 结构化中文 Markdown + 可选 PDF |
 | **E · 会议纪要** | 逐字稿 docx + 参考纪要 docx + 可选 AI 纪要 | 中文逐字稿 md + Word 人工纪要 + AI 对照分析 |
+| **F · 猹狸百科** | 公司名 / 赛道名 / 术语 / 估值问题 | 易读 HTML 学习报告 + 可选 MD |
 
 - 用户说 "准备访谈问题"、"手持问题清单" → **模式 A**
 - 用户说 "总结他的全覆盖观点"、"哪些 top pick"、"观点怎么变的" → **模式 B**
 - 用户说 "写研报"、"做一份 PPT"、"做 slides"、"公司深度" → **模式 C**
 - 用户说 "领导不想读英文"、"给老板讲一遍"、"中文总结这篇"、"翻译一下"、"单篇转述"、"帮我读这份研报" → **模式 D**
 - 用户说 "做纪要"、"整理纪要"、"人工纪要"、"会议记录"、"把逐字稿整理成纪要"、"弄一份纪要" → **模式 E**
+- 用户说 "帮我了解XX公司"、"XX是什么"、"这个赛道怎么样"、"估值怎么看"、"看不懂财报"、"什么是靶点/适应症/Ph2" → **模式 F**
 - 同时需要访谈 + 背景 → **先 B 后 A**（读完研报→出全景文档→基于全景写提纲）
 
 ---
@@ -1035,6 +1037,151 @@ Step 3: 去掉重复（同一件事翻来覆去说了两遍，留一遍）
 
 完。剩下的文字就是纪要 A。不要再"改写"。
 ```
+
+---
+
+## 模式 F · 猹狸百科
+
+> **角色定位**：用户是一名刚入行的 equity research intern（医药赛道），需要快速学习公司、赛道、术语、估值方法。Mode F 是"带教模式"——不是给领导看的研报，是给小白看的入门材料。
+> **典型用户问题**："帮我了解 XX 公司""XX 是什么""这个赛道怎么回事""估值怎么看""靶点/适应症/管线是什么意思""怎么看财报"
+> **输入**：公司名 / 赛道名 / 术语 / 财务/估值问题 / 任何"我不懂，你教我"
+> **输出**：HTML 学习报告（桌面）+ 可选 Markdown
+
+### F.1 核心读者画像
+
+```
+读者：刚进入医药 equity research 的 intern
+知识水平：对商业有基本认知，但医药/估值/金融术语是短板
+需求：快速补课，能听懂同事讨论、能看懂研报、能判断一个公司的基本逻辑
+偏好：结构清晰、有"小白提示"、有具体数字、不堆砌 jargon
+```
+
+### F.2 什么时候用 Mode F vs Mode C / Mode D
+
+| 场景 | 用哪个 |
+|------|--------|
+| 领导让我了解 BioAge，下周讨论 | **Mode F**（我是小白，需要从零开始） |
+| 领导让我写 BioAge 深度报告 PPT | **Mode C**（给领导看的正式研报） |
+| 领导扔给我一篇英文研报让我看 | **Mode D**（单篇转述，但可以做 F 的输入） |
+| 我要快速搞懂"ADC 是什么""Ph2 和 Ph3 有什么区别" | **Mode F**（术语百科） |
+| 我想学怎么看估值、怎么读财报 | **Mode F**（带教模式） |
+
+### F.3 内容覆盖范围
+
+Mode F 不限定输出格式（HTML/MD 都可），但限定以下固定信息模块。每份报告至少覆盖 6 个核心模块 + 按需扩展。
+
+#### 六个核心模块（公司报告必含）
+
+```
+1. 一句话：这家公司干什么的？
+   — 用最直白的语言解释公司的业务本质（不超过 3 句话）
+   — 必须有"小白提示"框，解释任何可能引起困惑的点
+   — 例："它不是药企，是给药企卖'设备'的"
+
+2. 赛道定位
+   — 这个公司在哪个赛道？（按用户的持仓分类体系标注）
+   — 为什么归在这个赛道？（解释归类逻辑）
+   — 如果同时涉足多个赛道，说清楚各自占比
+
+3. 业务拆分
+   — 公司靠什么赚钱？拆成 3-6 个业务板块
+   — 每块用一句话解释（不是行话翻译，是真实的业务本质）
+   — 标注各板块的营收、增速、毛利率
+
+4. 竞争优势
+   — 它比对手强在哪？（3-5 条）
+   — 哪条是"真正的护城河"，哪条只是"目前领先"？
+   — 列出主要竞争对手 + 一句话对比
+
+5. 财务与估值
+   — 近 2 年 + 1 年预测的关键财务数据（营收/利润/毛利率/订单）
+   — 当前估值倍数（PE/PB/EV/EBITDA）+ 同行对比
+   — "小白提示"解释每个估值指标的含义和怎么用
+
+6. 风险
+   — 3-5 个最可能出问题的地方
+   — 区分"短期风险"（下季度）vs"长期风险"（结构性）
+```
+
+#### 扩展模块（按需触发）
+
+| 用户问什么 | 补充什么 |
+|-----------|---------|
+| 这个赛道怎么样？ | 赛道全景：市场规模、增速、关键驱动因素、主要玩家 |
+| 这个词是什么意思？ | 术语卡片：中英文 + 一句话解释 + 一个例子 |
+| 怎么看估值？ | 估值入门：PE/PB/EV/EBITDA/DCF 各自是什么、什么时候用、有什么坑 |
+| 怎么看财报？ | 财报入门：三张表（利润表/资产负债表/现金流）的核心逻辑 |
+| 这个药是干什么的？ | 药物卡片：靶点/机制/适应症/临床阶段/竞品 |
+| 股票基础 | 股票入门：市值/PE/股息/涨跌停/做空/ETF 等基本概念 |
+
+### F.4 文风铁律
+
+与其他模式共享文风规则，但有 Mode F 专属补充：
+
+```
+☐ 共享规则：直接、朴实、具体、不比喻不排比不夸张 ✓
+☐ 共享规则：每个数据标注来源 ✓
+☐ 共享规则：英文术语保留原文 + 首次简注 ✓
+☐ Mode F 专属：
+   - 每次出现 jargon，必须跟一句"小白提示"解释
+   - 不用"众所周知""显然""不言而喻"——你是 intern，这些对你来说不显然
+   - 允许"这个说起来有点绕，我们拆开看："
+   - 不确定的信息标注"【未确认】"或"【据公开信息推断】"
+   - 禁止："正如我们所料""一如既往地强劲"——这是研报用语，不是教人用语
+```
+
+### F.5 信息来源优先级
+
+```
+1. 联网搜索（Tavily/WebSearch）→ 必须做，标注检索日期
+2. 公司年报/公告 → 最权威
+3. 券商研报（中金/开源/海通等）→ 标注机构+日期
+4. 行业报告/新闻 → 标注来源
+5. 用户本地文件（如有）→ 优先于联网
+```
+
+### F.6 输出格式
+
+默认输出 HTML（与 portfolio_dashboard 同款设计风格：Inter 字体、浅米底、slate navy accent），文件名 `[标的]_猹狸百科.html`，放桌面。
+
+用户也可以要求 Markdown。HTML 模板复用以下设计 tokens：
+```css
+--bg: #fcfcf9; --card: #fff; --border: #e6e3dd;
+--accent: #2c5f8e; --up: #217a3b; --down: #c0392b;
+--sans: 'Inter', system-ui, 'PingFang SC', sans-serif;
+```
+
+固定元素：
+- `.callout` — 小白提示框（琥珀色左边框）
+- `.tag` — 分类标签（紫/绿/蓝/琥珀四色）
+- `table` — 无斑马纹、轻边框
+- `.box` — 白色内容卡片
+
+### F.7 核对清单
+
+```
+□ 联网搜索已完成（标注检索日期）
+□ "一句话"不超过 3 句且真的能被小白看懂
+□ 赛道归类符合用户持仓分类体系
+□ 每个 jargon 有小白提示
+□ 财务数据表含近 2 年实际 + 1 年预测
+□ 估值倍数已标注并解释了含义
+□ 竞争对手表已列出 + 一句话对比
+□ 风险至少 3 条，区分为短期/长期
+□ HTML 文件在桌面，可直接打开
+□ 没有"众所周知""显然""正如我们所料"
+```
+
+### F.8 常见错误速查（Mode F 专属）
+
+| 错误 | 正确做法 |
+|------|---------|
+| 用 Mode C 风格写"深度研报" | Mode F 是带教，允许"我们拆开看"式引导 |
+| jargon 不解释 | 每个 jargon 首次出现都要跟小白提示 |
+| "该公司是领先的 X X 解决方案提供商" | 这句话小白看不懂。写"它卖 X 给 Y，帮 Y 解决 Z 问题" |
+| 估值只写数字不写含义 | "PE 14x — 意思是市场愿意为它每赚 1 块钱付 14 块" |
+| 不联网直接凭记忆写 | 必须联网查当前股价/市值/最新财务数据 |
+| 只写优点不写风险 | 必须列风险，每个风险有一句"为什么可怕" |
 
 ---
 
