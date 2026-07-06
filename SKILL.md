@@ -3,9 +3,9 @@ name: charlie-analyst-toolkit
 description: "Six-mode analyst research toolkit with academic literature search. Mode A (interview briefing): generate handheld question lists. Mode B (coverage summary): synthesize a single analyst's multi-report coverage history. Mode C (research PPTX): build structured equity research slide decks. Mode D (single-report deep briefing): translate English sell-side PDFs into Chinese executive summaries. Mode E (meeting minutes): transform raw interview transcripts into clean Chinese meeting minutes in Word format. Mode F (Charlie Encyclopedia): generate easy-to-read HTML learning reports for pharma/biotech interns covering companies, sectors, terminology, valuation, and financial statements. All modes optionally leverage paper-search-pro (OpenAlex/PubMed/Semantic Scholar) for precision academic literature retrieval. Use when the user needs interview prep, coverage synthesis, a research PPTX, a single-report Chinese briefing, meeting minutes, learning materials, or terminology explanations — mentions '访谈提纲', '观点汇总', '全覆盖', 'SOP', '写研报', '做PPT', 'slides', '单篇转述', '翻译', '中文总结', '领导不想读', '会议纪要', '人工纪要', '逐字稿', '查论文', '猹狸百科', '帮我了解', '小白', '估值怎么看', or references this skill by name."
 ---
 
-# Charlie · 分析师工具包（五模式）
+# Charlie · 分析师工具包（六模式）
 
-> 启动时先确认用户要模式 A / B / C / D / E。完整参考手册见 `SOP.md`。
+> 启动时先确认用户要模式 A / B / C / D / E / F。完整参考手册见 `SOP.md`。
 
 ## 模式选择
 

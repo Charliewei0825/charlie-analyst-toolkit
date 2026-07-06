@@ -1,84 +1,76 @@
-# 安装指南
+# 安装指南 · Charlie Analyst Toolkit
+
+## 前置要求
+
+| 工具 | macOS | Windows | Linux |
+|------|-------|---------|-------|
+| Git | 系统自带或 `brew install git` | `winget install git` | `apt install git` |
+| Python 3 | 系统自带 | `winget install python3` | `apt install python3` |
+| pandoc | `brew install pandoc` | `choco install pandoc` | `apt install pandoc` |
+| pdftotext | `brew install poppler` | `scoop install poppler` | `apt install poppler-utils` |
+| Chrome | 系统自带 | 系统自带 | `apt install chromium-browser` |
+
+> PDF 生成功能需要 pandoc + Chrome。纯 Markdown 输出不需要。
 
 ## 1. 克隆仓库
 
 ```bash
-git clone https://github.com/Charliewei0825/interview-briefing-toolkit.git
-```
-
-## 2. 添加 Skill 到 Claude Code
-
-将 SOP 注册为 Claude Code 的 skill，之后在对话中输入 `/interview-briefing-sop` 即可自动加载全部规范：
-
-```bash
-# 创建 skills 目录（如不存在）
+# Clone 到 Claude Code skills 目录
 mkdir -p ~/.claude/skills
-
-# 拷贝 SOP
-cp interview-briefing-toolkit/SOP.md ~/.claude/skills/interview-briefing-sop.md
+git clone https://github.com/Charliewei0825/charlie-analyst-toolkit.git \
+  ~/.claude/skills/charlie-analyst-toolkit
 ```
 
-验证：
+## 2. 验证 Skill 加载
+
+重启 Claude Code，skill 自动注册。在对话中输入 `/charlie-analyst-toolkit` 或提到触发词（如"访谈提纲""会议纪要""猹狸百科"）即可调用。
+
+## 3. 安装 Python 依赖
 
 ```bash
-ls ~/.claude/skills/
-# 应看到 interview-briefing-sop.md
+pip install pymupdf python-docx python-pptx PyYAML
 ```
 
-之后在 Claude Code 中输入 `/interview-briefing-sop` 即可调用。
+> 完整依赖列表见 `requirements.txt`
 
-> 如果希望每次对话自动加载（无需手动调用），可在 `~/.claude/settings.json` 中将该文件路径加入 `systemPrompt` 或 `additionalDirectories`。
+## 4. 配置联网搜索（可选，推荐）
 
-## 3. 安装 PDF 生成依赖
+- **Tavily API**：注册 https://tavily.com → 取得 API key → 写入 `~/.claude/settings.local.json`:
+  ```json
+  { "env": { "TAVILY_API_KEY": "tvly-xxx" } }
+  ```
+- **WebSearch**：Claude Code 内置，无需配置
+
+## 5. 配置学术文献检索（可选）
 
 ```bash
-# pandoc（MD → HTML）
-brew install pandoc
+# Clone paper-search-pro 到 skills 目录
+git clone https://github.com/O0000-code/paper-search-pro.git \
+  ~/.claude/skills/paper-search-pro
 
-# poppler（pdftotext 提取 PDF 文字）
-brew install poppler
-
-# Google Chrome（HTML → PDF，原生中文字体渲染）
-# 需已安装 Chrome。如未安装：
-# brew install --cask google-chrome
+# 配置 API keys（OpenAlex / NCBI 必须，约 15 分钟）
+# 详见 paper-search-pro 的 references/setup.md
 ```
 
-验证：
+配置写入 `~/.paper-search-pro/config.yaml`。
+
+## 6. 快速测试
 
 ```bash
-pandoc --version | head -1    # 应显示 pandoc 3.x
-pdftotext -v | head -1        # 应显示版本号
-ls "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"  # 应存在
-```
-
-## 4. 安装 Typora 主题（可选）
-
-Typora 用于编辑 Markdown 提纲。装完 Fugu 主题后，层级的视觉区分（H1/H2/H3/blockquote 颜色）与 PDF 输出一致：
-
-```bash
-git clone https://github.com/sinlatansen/typora-theme-Fugu.git /tmp/fugu
-cp /tmp/fugu/fugu.css ~/Library/Application\ Support/abnerworks.Typora/themes/
-cp -r /tmp/fugu/fugu ~/Library/Application\ Support/abnerworks.Typora/themes/
-```
-
-Typora 菜单 → 主题 → Fugu。
-
-## 5. 快速测试
-
-```bash
-cd interview-briefing-toolkit
+# 测试 PDF 生成
+cd ~/.claude/skills/charlie-analyst-toolkit
 ./pdf-pipeline.sh template.md test-output.pdf
-open test-output.pdf
+
+# macOS:  open test-output.pdf
+# Windows: start test-output.pdf
+# Linux:   xdg-open test-output.pdf
 ```
 
-应生成一份 1-2 页的 PDF，中文正常、页眉显示「访谈手持问题清单 · CONFIDENTIAL」。
-
-## 6. 工作流
+## 7. 工作流
 
 ```
-1. 克隆项目 → 安装依赖 → 注册 skill
-2. Claude Code 中输入 /interview-briefing-sop
-3. 按 SOP 逐份读材料 → 联网核查 → 生成提纲 MD
-4. 用 Typora（Fugu 主题）做最后的文字润色
-5. 跑 ./pdf-pipeline.sh xxx.md → 出 PDF
+1. 克隆项目 → 安装依赖 → 配置 API keys
+2. 在 Claude Code 中提及触发词或调用 skill
+3. 选择模式 A/B/C/D/E/F
+4. Claude 自动执行 → 输出文件到桌面或指定目录
 ```

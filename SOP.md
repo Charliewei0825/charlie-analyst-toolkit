@@ -3,9 +3,9 @@ name: charlie-analyst-toolkit
 description: "Five-mode analyst research toolkit with academic literature search. Mode A (interview briefing): generate handheld question lists. Mode B (coverage summary): synthesize analyst coverage history into panoramic view. Mode C (research PPTX): build structured equity research slide decks in 7-section format matching a reference template's exact formatting. Mode D (single-report deep briefing): translate and restructure a single English sell-side PDF report into a comprehensive Chinese executive summary. Mode E (meeting minutes): transform raw interview transcripts into clean Chinese meeting minutes. All modes optionally leverage paper-search-pro (OpenAlex/PubMed/Semantic Scholar) for precision academic literature retrieval."
 ---
 
-# Charlie · 分析师工具包 SOP（五模式）
+# Charlie · 分析师工具包 SOP（六模式）
 
-> **本 skill 提供四种输出，启动时先确认用户要哪一种。**
+> **本 skill 提供六种输出，启动时先确认用户要哪一种。**
 
 ## 模式选择
 
@@ -62,7 +62,7 @@ done
 
 ### 学术文献精确检索（按需启用）
 
-当任务涉及靶点机制、临床试验数据或需要核实/补充科学证据时，启用 paper-search-pro 五源学术检索。仓库位于 `/Users/charliewei/paper-search-pro`。详细参数、触发条件和输出格式见 `SKILL.md` §「通用基础设施 · 学术文献精确检索」及各模式对应章节（A.1.5 / C Step 3.5 / D Step 2.5 / B.6 / E.7）。paper-search-pro 自身的完整文档在 `$PSP_HOME/SKILL.md` 和 `$PSP_HOME/references/` 下。
+当任务涉及靶点机制、临床试验数据或需要核实/补充科学证据时，启用 paper-search-pro 五源学术检索。克隆到本地任意目录，设环境变量 `PSP_HOME` 指向该目录。详细参数、触发条件和输出格式见 `SKILL.md` §「通用基础设施 · 学术文献精确检索」及各模式对应章节（A.1.5 / C Step 3.5 / D Step 2.5 / B.6 / E.7）。paper-search-pro 自身的完整文档在 `$PSP_HOME/SKILL.md` 和 `$PSP_HOME/references/` 下。
 
 ---
 
@@ -428,10 +428,15 @@ pandoc input.md \
   -o output.html
 
 # Step 2: HTML → PDF（Chrome headless，原生中文渲染）
-"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
-  --headless --disable-gpu --no-sandbox \
-  --print-to-pdf=output.pdf --no-pdf-header-footer \
-  file://output.html
+# macOS:
+# "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
+#   --headless --disable-gpu --no-sandbox \
+#   --print-to-pdf=output.pdf --no-pdf-header-footer file://output.html
+# Windows:
+# "C:\Program Files\Google\Chrome\Application\chrome.exe" --headless --disable-gpu --no-sandbox --print-to-pdf=output.pdf --no-pdf-header-footer file://output.html
+# Linux:
+# google-chrome --headless --disable-gpu --no-sandbox --print-to-pdf=output.pdf --no-pdf-header-footer file://output.html
+# Claude 会根据当前操作系统自动选择正确命令
 ```
 
 ### 4.2 已验证可用的 CSS 参数
