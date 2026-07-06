@@ -28,16 +28,51 @@ description: "Six-mode analyst research toolkit with academic literature search.
 
 ---
 
-## 通用基础设施（五模式共享）
+## 通用基础设施（六模式共享）
+
+### ⚠️ 跨平台说明
+
+本 skill 在 macOS 上开发，设计为跨平台可用。所有命令示例以 macOS 写法给出，Claude 会在执行时根据当前操作系统自动适配。
+
+**用户需要自行安装的 CLI 工具**（仅 PDF 相关功能需要，其他模式不依赖）：
+
+| 工具 | macOS | Windows | Linux |
+|------|-------|---------|-------|
+| `pdftotext` | `brew install poppler` | `scoop install poppler` 或 `choco install poppler` | `apt install poppler-utils` |
+| `pandoc` | `brew install pandoc` | `choco install pandoc` | `apt install pandoc` |
+| Python 库 | `pip install pymupdf python-docx python-pptx`（PDF 备选方案） | 同左 | 同左 |
+
+**不需要安装的工具**：
+- Chrome/Chromium（系统通常自带或有替代方案）
+- `open` / `start` / `xdg-open`（Claude 自动适配）
+- Tavily MCP key（配在 `~/.claude.json` 的 user scope 下，详见[[ref_anyrouter_blocks_websearch]]）
+
+以下命令标注了各平台替代方案：
+
+| 工具 | macOS | Windows | Linux |
+|------|-------|---------|-------|
+| PDF 提取 | `pdftotext`（brew install poppler） | `pdftotext`（scoop/choco install poppler）或 Python `pymupdf` | `pdftotext`（apt install poppler-utils） |
+| 临时目录 | `/tmp/` | `%TEMP%` 或 `$env:TEMP` | `/tmp/` |
+| 打开浏览器 | `open` | `start` | `xdg-open` |
+| Chrome 路径 | `/Applications/Google Chrome...` | `C:\Program Files\Google\Chrome\Application\chrome.exe` | `google-chrome` 或 `chromium-browser` |
+| Python | 系统自带或 brew | `python3`（需手动安装） | 系统自带或 apt |
+
+**原则**：所有命令示例以 macOS 写法给出，执行时 Claude 会根据当前操作系统自动适配。用户无需手动修改。
 
 ### PDF 批量提取
 
 ```bash
+# macOS / Linux
 for dir in [知识库目录]/*/; do
   for f in "$dir"*.pdf; do
     pdftotext "$f" "/tmp/extracted/$(basename "$f" .pdf).txt"
   done
 done
+
+# Windows (PowerShell)
+# Get-ChildItem -Recurse -Filter *.pdf | ForEach-Object {
+#   pdftotext $_.FullName "$env:TEMP\extracted\$($_.BaseName).txt"
+# }
 ```
 
 ### 联网事实基线（必做）
@@ -52,7 +87,7 @@ done
 
 当任务涉及靶点机制、临床试验数据、生物标志物验证、或需要核实/补充科学证据时，启用 paper-search-pro 五源学术检索（OpenAlex / PubMed / Semantic Scholar / arXiv / CrossRef）。
 
-**仓库位置**：`/Users/charliewei/paper-search-pro`（`$PSP_HOME`）。首次使用前确认 `scripts/config.py` 中 API keys 已配（全部免费，约 15 分钟，详见 `references/setup.md`）。
+**仓库位置**：克隆到本地任意目录，设环境变量 `PSP_HOME` 指向该目录。首次使用前确认 `scripts/config.py` 中 API keys 已配（全部免费，约 15 分钟，详见 `references/setup.md`）。
 
 **两档深度**（适配分析师场景，砍掉原版 Audit 档）：
 
@@ -198,11 +233,20 @@ Step 6 — 输出 Markdown：按 Charlie 格式输出（见各模式的具体格
 ### A.8 PDF 生成
 
 ```bash
+# 生成 HTML
 pandoc input.md -f markdown-tex_math_dollars -t html5 --standalone \
   -H <(echo "<style>[CSS]</style>") -o output.html
+
+# 生成 PDF（macOS）
 "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
   --headless --disable-gpu --no-sandbox \
   --print-to-pdf=output.pdf --no-pdf-header-footer file://output.html
+
+# 生成 PDF（Windows）
+# "C:\Program Files\Google\Chrome\Application\chrome.exe" --headless --disable-gpu --no-sandbox --print-to-pdf=output.pdf --no-pdf-header-footer file://output.html
+
+# 生成 PDF（Linux）
+# google-chrome --headless --disable-gpu --no-sandbox --print-to-pdf=output.pdf --no-pdf-header-footer file://output.html
 ```
 
 配色：深蓝 #1a3a5c / 浅蓝 #e8edf5。CSS 详见 `SOP.md` §4.2。
@@ -354,9 +398,12 @@ prs = Presentation('reference.pptx')
 **Step 2 — 批量提取所有研报 PDF**
 
 ```bash
+# macOS / Linux
 for f in [研报目录]/*.pdf; do
   pdftotext -l 30 "$f" - 2>/dev/null
 done
+
+# Windows: Claude 会用 Python pymupdf 或自动适配
 ```
 
 同时读取公司 presentation、transcript、expert interview 等材料。
@@ -519,7 +566,9 @@ done
 **Step 1 — 提取 PDF 全文**
 
 ```bash
+# macOS / Linux
 pdftotext "[报告路径]" /tmp/report.txt
+# Windows: Claude 自动适配，通常用 Python pymupdf 或 pdftotext（需装 poppler）
 ```
 
 检查行数和文件大小确保提取完整。扫描版 PDF 需 OCR。
