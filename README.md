@@ -28,14 +28,25 @@ pip install python-pptx              # 模式 C: PPTX 生成
 # 需已安装 Google Chrome（HTML→PDF）
 ```
 
-### 注册为 Claude Code Skill
+### 注册为 Skill
+
+**Claude Code：**
 
 ```bash
 mkdir -p ~/.claude/skills/charlie-analyst-toolkit
 cp -r . ~/.claude/skills/charlie-analyst-toolkit/
 ```
 
-在 Claude Code 中输入 `/charlie-analyst-toolkit` 即可加载全部规范。加载后会自动确认你要模式 A / B / C / D / E。
+在 Claude Code 中输入 `/charlie-analyst-toolkit` 加载全部规范。
+
+**Codex CLI：**
+
+```bash
+mkdir -p ~/.agents/skills/charlie-analyst-toolkit
+cp -r . ~/.agents/skills/charlie-analyst-toolkit/
+```
+
+在 Codex 中输入 `$charlie-analyst-toolkit` 或直接描述任务（Codex 根据 description 自动匹配）。联网搜索 Codex 自带 `web_search`，无需额外配 MCP。
 
 ### 生成第一份文档
 
