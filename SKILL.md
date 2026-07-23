@@ -753,6 +753,8 @@ pdftotext "[报告路径]" /tmp/report.txt
 6. 完整 Q&A 写完后再提炼 Key Takeaway。
 7. 完成时序覆盖、连续区间、说话人和信息保留四项审计，再生成 Word。
 
+默认 Word 格式中只有主 Q 加粗；Re Q、A、Re A 和具名发言均不加粗。
+
 ### 标签原则
 
 - 原文有明确问题：使用 Q。
